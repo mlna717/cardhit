@@ -1,0 +1,17 @@
+[baseInfo]
+url=http://moni.51hupai.org/
+title=51»¦ÅÆÄ£ÄâÅÄÅÆÏµÍ³ - Internet Explorer
+
+[position]
+x=0
+y=0
+w=950
+h=850
+
+#[strategy=pointTimeAndAddPrice]
+#time=11:29:10
+#add=200
+
+[strategy=pointPrice]
+pointPrice=93000
+diff=200
