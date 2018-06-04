@@ -1,25 +1,21 @@
 from pyhooked import Hook, KeyboardEvent, MouseEvent
 
+global chatFrame
+
 def handle_events(args):
     if isinstance(args, KeyboardEvent):
-        # print(args.key_code)
-        # print(args.current_key)
-        # print(args.event_type)
-        # print(args.pressed_key)
-        if args.current_key == 'A' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
-            print("Ctrl + A was pressed")
-        elif args.current_key == 'Q' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
-            hk.stop()
-            print('Quitting.')
-
+        global chatFrame
+        if args.current_key == 'Return' and args.event_type == 'key down':
+            chatFrame.send(None)
 
     if isinstance(args, MouseEvent):
-        # print(args.mouse_x)
-        # print(args.mouse_y)
-        if args.mouse_x == 300 and args.mouse_y == 400:
-            print("Mouse is at (300,400")
+        print(args.mouse_x)
+        print(args.mouse_y)
+        return
 
-if __name__ == '__main__':
-    hk = Hook()  # make a new instance of PyHooked
-    hk.handler = handle_events  # add a new shortcut ctrl+a, or triggered on mouseover of (300,400)
-    hk.hook()  # hook into the events, and listen to the presses
+def notifyListen(chatWdw):
+    global chatFrame
+    chatFrame = chatWdw
+    hk = Hook()
+    hk.handler = handle_events
+    hk.hook()

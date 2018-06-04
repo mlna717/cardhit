@@ -5,13 +5,16 @@ import requests
 import telnetlib
 from time import sleep
 import _thread as thread
+import MainFrame
 from MyConfigParser import *
+from PyHook import notifyListen
 
 con = telnetlib.Telnet()
 
 class LoginFrame(wx.Dialog):
 
     def __init__(self, parent):
+        self.parent = parent
         self.parseConfig()
         self.windowTitle = '登录'
         wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
@@ -79,7 +82,6 @@ class LoginFrame(wx.Dialog):
             elif response == b'UserName Exist':
                 self.showDialog('Error', 'UserName Exist!', (200, 100))
             else:
-                self.Close()
                 ChatFrame(None, 2, title='沪牌拍卖', size=(510, 400))
         except Exception:
             self.showDialog('Error', 'Connect Fail!', (200, 100))
@@ -98,11 +100,13 @@ class LoginFrame(wx.Dialog):
         info = {'username': self.userName.Value, 'password': self.passwd.Value}
         ret = requests.get(url,data=info)
         if ret.status_code == 200:
+            # 初始化聊天服务器连接并打开聊天窗口
             result = ret.text
             if result == 'success':
-                # 初始化聊天服务器连接并打开聊天窗口
+                self.parent.setLogInfo(True,self.userName.Value)
+                self.Close()
                 self.connect()
-                self.EndModal(wx.OK)
+                # self.EndModal(wx.OK)
             else:
                 dlg = wx.MessageDialog(None, u"用户名或密码错误", u"错误", wx.OK | wx.ICON_ERROR)
                 if dlg.ShowModal() == wx.ID_OK:
@@ -139,6 +143,7 @@ class ChatFrame(wx.Frame):
         self.closeButton.Bind(wx.EVT_BUTTON, self.close)
         thread.start_new_thread(self.receive, ())
         self.Show()
+        notifyListen(self)
 
     def send(self, event):
         # 发送消息
@@ -153,9 +158,13 @@ class ChatFrame(wx.Frame):
 
     def close(self, event):
         # 关闭窗口
-        con.write(b'logout\n')
-        con.close()
-        self.Close()
+        try:
+            con.write(b'logout\n')
+        except:
+            None
+        finally:
+            con.close()
+            self.Close()
 
     def receive(self):
         # 接受服务器的消息

@@ -19,6 +19,7 @@ from CardHit import *
 ## Class MainFrame
 ###########################################################################
 
+isLogin = False
 class MainFrame(wx.Frame):
 
     def __init__(self, parent):
@@ -26,7 +27,6 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=self.windowTitle, pos=wx.DefaultPosition,
                           size=wx.Size(480, 481), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
-        self.isLogin = False
         self.cardHit = CardHit()
 
         self.file = "conf\\config.ini"
@@ -208,13 +208,15 @@ class MainFrame(wx.Frame):
     def __del__(self):
         pass
 
+    def setLogInfo(self,loginFlag,userName):
+        global isLogin
+        isLogin = loginFlag
+        self.title.SetLabel(userName + "登录成功")
+
     # Virtual event handlers, overide them in your derived class
     def popLoginWdw(self, event):
         loginFrame = LoginFrame(self)
-        ret = loginFrame.ShowModal()
-        if ret == wx.OK:
-            self.title.SetLabel(loginFrame.userName.Value+"登录成功")
-            self.isLogin = True
+        loginFrame.ShowModal()
     def saveStra1(self, event):
         self.clearStrategy()
         self.conf.add_section('strategy=pointPrice')
@@ -296,16 +298,16 @@ class MainFrame(wx.Frame):
                 dlg.Destroy()
 
     def checkLogin(self):
-        if self.isLogin == False:
+        global isLogin
+        if isLogin == False:
             dlg = wx.MessageDialog(None, u"登录成功后才可以运行", u"提示", wx.OK|wx.CANCEL)
             if dlg.ShowModal() == wx.ID_OK:
                 self.popLoginWdw(None)
             dlg.Destroy()
-        return self.isLogin
+        return isLogin
 
 
 if __name__ == "__main__":
-    isLogin = False
     app = wx.App()
     mainFrame = MainFrame(None)
     mainFrame.Show()
